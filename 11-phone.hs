@@ -2,6 +2,7 @@ module DaPhone where
 
 import           Data.Char
 import           Data.List
+import           Data.Map   (fromListWith, toList)
 import           Data.Maybe
 
 type Digit = Char
@@ -65,9 +66,22 @@ reverseTaps (Phone list) ch = case find (\x -> ch `elem` (snd x)) list of
 cellPhonesDead :: Phone -> String -> [(Digit, Presses)]
 cellPhonesDead phone = concat . map (reverseTaps phone)
 
--- How many times do digits need to be pressed for each message?
+-- How many times do digits need to be pressed for each message
 fingerTaps :: [(Digit, Presses)] -> Presses
 fingerTaps = foldr (\a b -> b + (snd a)) 0
 
+maxByTail :: (Ord b) => [(a, b)] -> (a, b)
+maxByTail (x:xs) = go x xs
+  where go curr [] = curr
+        go (a, b) (x:xs)
+            | snd x > b = go x xs
+            | otherwise = go (a, b) xs
 
+-- The most popular letter for each message
+mostPopularLetter :: String -> Char
+mostPopularLetter xs = fst $ maxByTail $ toList $ fromListWith (+) [(x, 1) | x <- input]
+  where input = concat $ words xs
 
+-- The most popular letter overall
+coolestLtr :: [String] -> Char
+coolestLtr = mostPopularLetter . map mostPopularLetter
