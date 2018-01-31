@@ -27,4 +27,4 @@ either' f g (Right a) = g a
 
 
 eitherMaybe'' :: (b -> c) -> Either a b -> Maybe c
-eitherMaybe'' f x = either' (\x -> Nothing) (\x -> Just $ f x) x
+eitherMaybe'' f x = either' (\_ -> Nothing) (\x -> Just $ f x) x
