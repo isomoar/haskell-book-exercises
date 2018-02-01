@@ -1,3 +1,6 @@
+import           Control.Monad
+import           System.IO
+
 type Name = String
 type Age = Integer
 
@@ -17,5 +20,17 @@ mkPerson name age
     "Name was: " ++ show name ++ ", Age was: " ++ show age
 
 
-gimmePerson :: IO ()
-gimmePerson = undefined
+gimmePerson :: IO String
+gimmePerson = do
+  hSetBuffering stdout NoBuffering
+  putStrLn "Please enter your person's age:"
+  age <- getLine
+  putStrLn "Your person's name:"
+  name <- getLine
+  let person = mkPerson name (read age)
+      result = case person of
+                 Left err -> show err
+                 Right p  -> "Yay! Successfully got a person: " ++ (show p)
+  return result
+
+
