@@ -14,4 +14,3 @@ palindrome = forever $ do
       putStrLn "Nope!"
       exitSuccess
 
-
