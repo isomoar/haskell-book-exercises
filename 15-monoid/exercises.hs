@@ -1,4 +1,4 @@
-import qualified Data.Monoid     (Monoid, Sum, mappend)
+import           Data.Monoid     as M (Monoid, Sum (..), mappend)
 import           Data.Semigroup  as S (Semigroup, (<>))
 import           Test.QuickCheck
 
@@ -17,6 +17,10 @@ data Three a b c = Three a b c deriving (Eq, Show)
 newtype BoolConj = BoolConj Bool deriving (Eq, Show)
 
 data Or a b = Fst a | Snd b deriving (Eq, Show)
+
+newtype Combine a b =
+  Combine { unCombine :: (a -> b) }
+
 
 
 -- Semigroup instances
@@ -48,6 +52,10 @@ instance Semigroup (Or a b) where
   (Fst a) <> (Snd b) = Snd b
   (Snd a) <> (Fst b) = Snd a
   (Snd a) <> (Snd b) = Snd b
+
+instance (Semigroup b, Semigroup a) => Semigroup (Combine a b) where
+  Combine {unCombine=f} <> (Combine{unCombine=g}) =
+    Combine {unCombine = \x -> (f x) <> (g x)}
 
 
 -- Arbitrary instances
@@ -99,19 +107,21 @@ type IdentityAssoc = Identity String
                     -> Identity String
                     -> Bool
 
-type TwoAssoc = Two String (M.Sum Int)
-                  -> Two String (M.Sum Int)
-                  -> Two String (M.Sum Int)
+type TwoAssoc = Two String [Int]
+                  -> Two String [Int]
+                  -> Two String [Int]
                   -> Bool
 
-type ThreeAssoc = Three String (M.Sum Int) [Int]
-                  -> Three String (M.Sum Int) [Int]
-                  -> Three String (M.Sum Int) [Int]
+type ThreeAssoc = Three String [Int] [Int]
+                  -> Three String [Int] [Int]
+                  -> Three String [Int] [Int]
                   -> Bool
 
 type BoolConjAssoc = BoolConj -> BoolConj -> BoolConj -> Bool
 
 type OrAssoc = Or String Int -> Or String Int -> Or String Int -> Bool
+
+
 
 main :: IO ()
 main = do
