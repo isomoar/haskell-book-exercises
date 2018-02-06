@@ -50,10 +50,29 @@ instance (Arbitrary a, Arbitrary b, Arbitrary c) => Arbitrary (Three a b c) wher
 instance (Eq a, Eq b, Eq c) => EqProp (Three a b c) where
   (=-=) = eq
 
-type Str3 = (String, String, String)
+data Three' a b = Three' a b b deriving (Eq, Show)
+
+instance Functor (Three' a ) where
+  fmap f (Three' x y y') = Three' x (f y) (f y')
+
+instance (Monoid a) => Applicative (Three' a) where
+  pure a = Three' mempty a a
+  Three' x y z <*> Three' x' y' z' = Three' (x <> x') (y y') (z z')
+
+instance (Arbitrary a, Arbitrary b) => Arbitrary (Three' a b) where
+  arbitrary = Three' <$> arbitrary <*> arbitrary <*> arbitrary
+
+instance (Eq a, Eq b) => EqProp (Three' a b) where
+  (=-=) = eq
+
+
+type Str3 = ([Int], String, String)
 
 three :: Three Str3 Str3 Str3
 three = undefined
+
+three' :: Three' Str3 Str3
+three' = undefined
 
 two :: Two Str3 Str3
 two = undefined
@@ -61,6 +80,7 @@ two = undefined
 main :: IO ()
 main = do
   return ()
-  -- quickBatch $ applicative three
-  quickBatch $ applicative two
+  quickBatch $ applicative three
+  -- quickBatch $ applicative three'
+  -- quickBatch $ applicative two
 
