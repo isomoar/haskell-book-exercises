@@ -26,7 +26,10 @@ instance Applicative List where
   (Cons f fl) <*> list = (fmap f list) <> (fl <*> list)
 
 take' :: Int -> List a -> List a
-take' = undefined
+take' _ Nil        = Nil
+take' 1 (Cons x _) = Cons x Nil
+take' n (Cons x l) = Cons x (take' (n - 1) l)
+
 
 instance Eq a => EqProp (ZipList' a) where
   xs =-= ys = xs' `eq` ys'
@@ -41,8 +44,8 @@ instance Functor ZipList' where
   fmap f (ZipList' xs) = ZipList' $ fmap f xs
 
 zipWith' :: (a -> b -> c) -> List a -> List b -> List c
-zipWith'_ Nil _ = Nil
-zipWith' _ _ Nil                   = Nil
+zipWith' f Nil _                   = Nil
+zipWith' f _ Nil                   = Nil
 zipWith' f (Cons a as) (Cons b bs) = Cons (f a b) (zipWith' f as bs)
 
 
@@ -56,16 +59,17 @@ instance Monoid a => Monoid (ZipList' a) where
   mappend = liftA2 mappend
 
 
--- instance (Arbitrary a) => Arbitrary (List a) where
---   arbitrary = Cons <*> arbitrary <*> arbitrary
---
---
--- instance Arbitrary a => Arbitrary (ZipList' a) where
---   arbitrary = ZipList' <$> arbitrary
---
---
--- v = ZipList' (Cons "a" Nil)  :: ZipList' String
---
--- main :: IO ()
--- main = do
---   quickBatch $ monoid v
+instance (Arbitrary a) => Arbitrary (List a) where
+  arbitrary = Cons <$> arbitrary <*> arbitrary
+
+
+instance Arbitrary a => Arbitrary (ZipList' a) where
+  arbitrary = ZipList' <$> arbitrary
+
+
+v = ZipList' (Cons "a" Nil)  :: ZipList' String
+
+
+main :: IO ()
+main = do
+  quickBatch $ monoid v
