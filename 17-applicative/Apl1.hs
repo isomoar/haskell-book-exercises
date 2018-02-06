@@ -8,6 +8,7 @@ import           Test.QuickCheck.Classes
 
 
 instance Monoid a => Monoid (ZipList a) where
+  -- Sum 1 `mappend` ??? -> Sum 1
   mempty = pure mempty
   mappend = liftA2 mappend
 
