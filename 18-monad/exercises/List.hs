@@ -84,6 +84,10 @@ meh :: Monad m => [a] -> (a -> m b) -> m [b]
 meh xs f = sequence $ map f xs
 
 
+flipType :: (Monad m) => [m a] -> m [a]
+flipType ms = meh ms $ join . pure
+
+
 main :: IO ()
 main = do
   let trigger = undefined :: List (Int, String, Int)
