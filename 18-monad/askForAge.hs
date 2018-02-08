@@ -1,5 +1,5 @@
 import           Control.Applicative
-import           Control.Monad
+import           Control.Monad       ((>=>))
 
 mcomp :: Monad m => (b -> m c) -> (a -> m b) -> a -> m c
 mcomp f g a = g a >>= f
