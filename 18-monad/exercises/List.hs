@@ -70,14 +70,18 @@ l2 f a b = do
   return (f x y)
 
 
--- a :: Monad m => m a -> m (a -> b) -> m b
--- a mx mf  = do
---   f <- mf
---   x <- mx
---   return (f x)
-
 a :: Monad m => m a -> m (a -> b) -> m b
-a mx mf = mf >>= (\f -> (mx >>= \x -> return (f x)))
+a mx mf  = do
+  f <- mf
+  x <- mx
+  return (f x)
+
+a' :: Monad m => m a -> m (a -> b) -> m b
+a' mx mf = mf >>= (\f -> (mx >>= \x -> return (f x)))
+
+
+meh :: Monad m => [a] -> (a -> m b) -> m [b]
+meh xs f = sequence $ map f xs
 
 
 main :: IO ()
