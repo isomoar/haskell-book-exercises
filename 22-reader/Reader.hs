@@ -13,8 +13,9 @@ instance Applicative (Reader r) where
   (<*>) :: Reader r (a -> b) -> Reader r a -> Reader r b
   (Reader rab) <*> (Reader ra) = Reader $ \r -> rab r (ra r)
 
--- instance Monad (Reader r) where
---   return = pure
---
---   (>>=) :: Reader r a -> (a -> Reader r b) -> Reader r b
---   (Reader ra) >>= aRb = Reader $ \r
+instance Monad (Reader r) where
+  return = pure
+
+  (>>=) :: Reader r a -> (a -> Reader r b) -> Reader r b
+  (Reader ra) >>= aRb = Reader $ \r -> runReader (aRb (ra r)) r
+
