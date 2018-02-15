@@ -1,8 +1,6 @@
 {-# LANGUAGE InstanceSigs #-}
 
-
-import           Control.Monad             (replicateM)
-import           Control.Monad.Trans.State
+module Moi where
 
 newtype Moi s a = Moi { runMoi :: s -> (a, s) }
 
@@ -17,18 +15,16 @@ instance Applicative (Moi s) where
   (<*>) :: Moi s (a -> b) -> Moi s a -> Moi s b
   (Moi f) <*> (Moi g) =
     Moi $ \s ->
-      let (a, s') = g s
-          (fa, fs) = f s
-      in (fa a,  s')
+      let (a, newState) = g s
+          fa = fst $ f s
+      in (fa a,  newState)
 
 instance Monad (Moi s) where
   return = pure
 
   (>>=) :: Moi s a -> (a -> Moi s b) -> Moi s b
   (Moi f) >>= g =
-    Moi $ \s ->
-      let (a, s') = f s
-          Moi g' = g a
-          (ga, gs) = g' s
-      in (ga, s')
+    Moi $ \s -> let (a, newState) = f s
+                    (Moi g') = g a
+                in g' newState
 
