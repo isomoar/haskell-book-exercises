@@ -20,3 +20,8 @@ executable proj
   build-depends:       base >= 4.7 && < 5
                        , trifecta
                        , raw-strings-qq
+                       , parsers
+                       , text
+                       , containers
+                       , hspec
+                       , bytestring
