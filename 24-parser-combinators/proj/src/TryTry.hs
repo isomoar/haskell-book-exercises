@@ -1,22 +1,14 @@
 {-# LANGUAGE QuasiQuotes #-}
 
-module AltParsing where
+module TryTry where
 
 import           Control.Applicative
 import           Data.Ratio          ((%))
+import           Fractions
 import           Text.RawString.QQ
 import           Text.Trifecta
 
 type FractionOrNumber = Either Rational Integer
-
-parseFraction :: Parser Rational
-parseFraction = do
-  numerator <- decimal
-  char '/'
-  denominator <- decimal
-  case denominator of
-    0 -> fail "Denominator cannot be zero"
-    _ -> return (numerator % denominator)
 
 parseNof :: Parser FractionOrNumber
 parseNof =
