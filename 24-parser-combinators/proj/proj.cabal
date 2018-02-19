@@ -25,3 +25,7 @@ executable proj
                        , containers
                        , hspec
                        , bytestring
+                       , attoparsec
+                       , parsec
+                       , aeson
+                       , scientific
