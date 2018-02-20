@@ -1,5 +1,5 @@
 {-# LANGUAGE InstanceSigs #-}
-module Main where
+module ComposeInstances where
 
 import           Control.Applicative
 import           Control.Monad
@@ -27,6 +27,12 @@ instance (Applicative f, Applicative g) =>
       Compose $ liftA2 (<*>) f a
 
 
-main :: IO ()
-main = do
-  putStrLn "hello world"
+instance (Foldable f, Foldable g) =>
+  Foldable (Compose f g) where
+    foldMap f (Compose a) = foldMap (foldMap f) a
+
+
+instance (Traversable f, Traversable g) =>
+  Traversable (Compose f g) where
+    traverse f (Compose a) = Compose <$> traverse (traverse f) a
+
