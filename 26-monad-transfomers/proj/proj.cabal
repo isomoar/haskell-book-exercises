@@ -20,3 +20,4 @@ executable proj
   build-depends:       base >= 4.7 && < 5
                       , transformers
                       , scotty
+                      , text
