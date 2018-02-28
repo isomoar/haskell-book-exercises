@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Main where
 
+import           Control.Monad.IO.Class
 import           Control.Monad.Trans.Class
 import           Control.Monad.Trans.Reader
 import           Data.IORef
@@ -23,17 +24,29 @@ type Handler = ActionT Text (ReaderT Config IO)
 bumpBoomp :: Text
           -> M.Map Text Integer
           -> (M.Map Text Integer, Integer)
-bumpBoomp k m = undefined
+bumpBoomp k m =
+  let (v, m') = M.updateLookupWithKey (\k x -> Just (x + 1)) k m
+  in (m',fromMaybe 1 v)
+
+changeEnv :: M.Map Text Integer -> ReaderT Config IO
+changeEnv m = do
+  counter <- newIORef m
+  Config _ prefix <- ask
+  local (\c -> Config counter prefix) ()
+
 
 app :: Scotty ()
 app =
   get "/:key" $ do
     unprefixed <- param "key"
-    Config counts prefix <- lift ask
-    let key' = mappend undefined unprefixed
-    newInteger <- 1
+    Config countsRef prefix <- lift ask
+    m <- liftIO $ readIORef countsRef
+    let key' = mappend (TL.unpack prefix) unprefixed
+        newMap = fst $ bumpBoomp (TL.pack key') m
+        newInteger = snd $ bumpBoomp (TL.pack key') m
+    w <- runReaderT (changeEnv newMap)
     html $ mconcat [ "<h1>Success! Count was: "
-                   , TL.pack $ "1"
+                   , TL.pack $ show newInteger
                    , TL.pack $ unprefixed
                    , "</h1>"
                    ]
