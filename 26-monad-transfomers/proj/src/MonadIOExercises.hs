@@ -22,4 +22,4 @@ instance Monad m => Monad (MaybeT m) where
     MaybeT $ mma >>= maybe (pure Nothing) (runMaybeT . f)
 
 instance (MonadIO m) => MonadIO (MaybeT m) where
-  liftIO = undefined
+  liftIO = lift . liftIO
