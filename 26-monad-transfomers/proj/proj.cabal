@@ -22,3 +22,4 @@ executable proj
                       , scotty
                       , text
                       , mtl
+                      , containers

@@ -29,10 +29,12 @@ app :: Scotty ()
 app =
   get "/:key" $ do
     unprefixed <- param "key"
+    Config counts prefix <- lift ask
     let key' = mappend undefined unprefixed
-    newInteger <- undefined
+    newInteger <- 1
     html $ mconcat [ "<h1>Success! Count was: "
-                   , TL.pack $ show newInteger
+                   , TL.pack $ "1"
+                   , TL.pack $ unprefixed
                    , "</h1>"
                    ]
 
@@ -40,6 +42,6 @@ main :: IO ()
 main = do
   [prefixArg] <- getArgs
   counter <- newIORef M.empty
-  let config = undefined
-      runR = undefined
+  let config = Config counter (TL.pack prefixArg)
+      runR m = runReaderT m config
   scottyT 3000 runR app
