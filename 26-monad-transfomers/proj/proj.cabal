@@ -21,3 +21,4 @@ executable proj
                       , transformers
                       , scotty
                       , text
+                      , mtl
