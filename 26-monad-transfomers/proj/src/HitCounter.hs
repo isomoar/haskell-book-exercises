@@ -25,15 +25,10 @@ bumpBoomp :: Text
           -> M.Map Text Integer
           -> (M.Map Text Integer, Integer)
 bumpBoomp k m =
-  let (v, m') = M.updateLookupWithKey (\k x -> Just (x + 1)) k m
-  in (m',fromMaybe 1 v)
-
-changeEnv :: M.Map Text Integer -> ReaderT Config IO
-changeEnv m = do
-  counter <- newIORef m
-  Config _ prefix <- ask
-  local (\c -> Config counter prefix) ()
-
+  let f x = if x == Nothing then (Just 0) else (fmap (+1) x)
+      m' = M.alter f k m
+      v' = M.lookup k m'
+  in (m', fromMaybe 0 v')
 
 app :: Scotty ()
 app =
@@ -41,13 +36,11 @@ app =
     unprefixed <- param "key"
     Config countsRef prefix <- lift ask
     m <- liftIO $ readIORef countsRef
-    let key' = mappend (TL.unpack prefix) unprefixed
-        newMap = fst $ bumpBoomp (TL.pack key') m
-        newInteger = snd $ bumpBoomp (TL.pack key') m
-    w <- runReaderT (changeEnv newMap)
+    let key' = mappend prefix unprefixed
+        (newCounts, newInteger) = bumpBoomp key' m
+    liftIO $ writeIORef countsRef newCounts
     html $ mconcat [ "<h1>Success! Count was: "
                    , TL.pack $ show newInteger
-                   , TL.pack $ unprefixed
                    , "</h1>"
                    ]
 
